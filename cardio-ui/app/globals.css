@@ -1,0 +1,82 @@
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #f7f9fc;
+    color: #1f2933;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+}
+
+.title {
+    font-weight: 300;
+    font-size: 32px;
+    margin-bottom: 40px;
+    color: #243b53;
+}
+
+.sphere {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #5f8cff, #4c6fff);
+    box-shadow: 0 10px 30px rgba(76, 111, 255, 0.25);
+    transition: all 0.4s ease;
+}
+
+.pulse {
+    animation: pulse 1.2s infinite ease-in-out;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+    100% { transform: scale(1); }
+}
+
+.runButton {
+    margin-top: 30px;
+    padding: 12px 26px;
+    border-radius: 30px;
+    border: none;
+    background: #4c6fff;
+    color: white;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.runButton:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(76, 111, 255, 0.3);
+}
+
+.report {
+    margin-top: 40px;
+    width: 420px;
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+}
+
+section {
+    margin-bottom: 18px;
+}
+
+h2 {
+    font-size: 14px;
+    font-weight: 500;
+    color: #486581;
+    margin-bottom: 6px;
+}
+
+p {
+    font-size: 15px;
+    font-weight: 300;
+}

@@ -4,9 +4,10 @@ from main import run_swarm
 
 app = FastAPI()
 
+# ✅ ADD THIS BLOCK 🔥
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],   # for dev/demo (later restrict)
+    allow_origins=["*"],   # For dev/demo (later restrict)
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
