@@ -6,7 +6,7 @@ from agents.crisis_prediction_agent import CrisisPredictionAgent
 from utils.visualizer import Visualizer
 
 
-def main():
+def run_swarm():
 
     history = CardiacSyntheticGenerator.generate_patient(months=12)
 
@@ -25,16 +25,28 @@ def main():
 
     crisis_forecast = CrisisPredictionAgent.evaluate(latest, deviations)
 
+    return {
+        "Decision": swarm_output["Decision"],
+        "RiskProbability": swarm_output["RiskProbability"],
+        "CompositeScore": swarm_output["CompositeScore"],
+        "Agents": swarm_output["Agents"],
+        "Debate": consensus,
+        "CrisisForecast": crisis_forecast,
+        "LatestState": latest,
+        "Deviations": deviations
+    }
+
+
+def main():
+
+    result = run_swarm()
+
     print("\nSWARM OUTPUT:")
-    print(swarm_output)
+    print(result)
 
-    print("\nDEBATE CONSENSUS:")
-    print(consensus)
-
-    print("\nCRISIS FORECAST:")
-    print(crisis_forecast)
-
-    Visualizer.plot_history(history)
+    Visualizer.plot_history(
+        CardiacSyntheticGenerator.generate_patient(months=12)
+    )
 
 
 if __name__ == "__main__":
