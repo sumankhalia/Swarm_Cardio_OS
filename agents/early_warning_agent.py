@@ -1,23 +1,41 @@
-from utils.llm_client import query_llm
-
-SYSTEM_PROMPT = """
-You are the Early Warning Intelligence Agent.
-
-Estimate future instability probability and crisis likelihood.
-"""
+from utils.llm_client import LLMClient
 
 
 class EarlyWarningAgent:
 
     @staticmethod
-    def evaluate(signals):
+    def evaluate(signals, deviations):
 
-        score = (
-            signals["cardiac_load"]
-            + signals["autonomic_instability"]
-            + signals["fluid_retention_pressure"]
-        ) / 3
+        system_prompt = """
+You are EarlyWarningAgent inside a cardiac cognitive AI swarm.
 
-        reasoning = query_llm(SYSTEM_PROMPT, signals, score)
+Role:
+Detects emerging risk signals before crisis thresholds.
+
+CRITICAL RESPONSE RULES:
+
+- Return ONLY valid JSON
+- No alarmist language
+- No explanations
+
+Required JSON Format:
+
+{
+  "signal_assessment": "early deviation reading",
+  "risk_interpretation": "forward-looking implication",
+  "confidence": 0-10
+}
+"""
+
+        user_prompt = f"""
+Signals: {signals}
+Deviations: {deviations}
+"""
+
+        reasoning = LLMClient.reason(
+            system_prompt,
+            user_prompt,
+            agent_name="EarlyWarningAgent"
+        )
 
         return reasoning

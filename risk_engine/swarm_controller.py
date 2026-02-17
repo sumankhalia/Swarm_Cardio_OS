@@ -1,87 +1,85 @@
 from agents.strategy_agent import StrategyAgent
 from agents.risk_agent import RiskAgent
 from agents.stability_agent import StabilityAgent
-from agents.governance_agent import GovernanceAgent
-from agents.skeptic_agent import SkepticAgent
 from agents.instability_agent import InstabilityAgent
-from agents.early_warning_agent import EarlyWarningAgent
+from agents.governance_agent import GovernanceAgent
+from agents.trend_agent import TrendAgent
 
-from risk_engine.probabilistic_model import ProbabilisticRisk
+from agents.skeptic_agent import SkepticAgent
+from agents.early_warning_agent import EarlyWarningAgent
+from agents.crisis_prediction_agent import CrisisPredictionAgent
+
+from agents.patient_regulation_agent import PatientRegulationAgent
+
+import statistics
+import math
 
 
 class SwarmController:
 
     @staticmethod
-    def run(signals):
+    def run(signals, deviations):
 
-        # Agent Evaluations
-        strategy_score, strategy_reasoning = StrategyAgent.evaluate(signals)
-        risk_score, risk_reasoning = RiskAgent.evaluate(signals)
-        stability_score, stability_reasoning = StabilityAgent.evaluate(signals)
-        governance_score, governance_reasoning = GovernanceAgent.evaluate(signals)
-
-        skeptic_pressure, skeptic_reasoning = SkepticAgent.evaluate(
-            strategy_score, risk_score
+        composite_score = (
+            signals["cardiac_load"] * 0.35
+            + signals["recovery_deficit"] * 0.25
+            + signals["autonomic_instability"] * 0.25
+            + signals["variability_risk"] * 0.15
         )
 
-        instability_reasoning = InstabilityAgent.evaluate(signals)
-        early_warning_reasoning = EarlyWarningAgent.evaluate(signals)
+        risk_probability = 1 / (1 + math.exp(-composite_score / 10))
 
-        # Composite Swarm Intelligence Score
-        composite = (
-            strategy_score * 0.25
-            + stability_score * 0.25
-            + governance_score * 0.2
-            - risk_score * 0.3
-            - skeptic_pressure * 0.1
-        )
+        agents_output = {
 
-        # Probabilistic Risk Layer
-        risk_probability = ProbabilisticRisk.compute(composite)
+            # Core swarm cognition
+            "StrategyAgent": StrategyAgent.evaluate(signals, composite_score),
+            "RiskAgent": RiskAgent.evaluate(signals, composite_score),
+            "StabilityAgent": StabilityAgent.evaluate(signals, composite_score),
+            "InstabilityAgent": InstabilityAgent.evaluate(signals, composite_score),
+            "GovernanceAgent": GovernanceAgent.evaluate(signals, composite_score),
+            "TrendAgent": TrendAgent.evaluate(signals, deviations),
 
-        # Decision Logic
-        if composite < 2:
+            # Meta cognition layer
+            "SkepticAgent": SkepticAgent.evaluate(signals, composite_score),
+            "EarlyWarningAgent": EarlyWarningAgent.evaluate(signals, deviations),
+            "CrisisPredictionAgent": CrisisPredictionAgent.evaluate(signals, deviations),
+
+            # Regulation layer
+            "PatientRegulationAgent": PatientRegulationAgent.evaluate(
+                signals, composite_score
+            ),
+        }
+
+        confidences = []
+
+        for agent in agents_output.values():
+            if "confidence" in agent:
+                confidences.append(agent["confidence"])
+
+        consensus_confidence = statistics.mean(confidences)
+        dispersion = statistics.pstdev(confidences)
+
+        if risk_probability > 0.75:
             decision = "High Risk – Clinical Attention Recommended"
-        elif composite < 5:
-            decision = "Moderate Risk – Monitor & Stabilize"
+        elif risk_probability > 0.45:
+            decision = "Moderate Instability – Monitor Trends"
         else:
-            decision = "Stable Condition"
+            decision = "Stable Adaptive State"
 
-        # Structured Output (Enterprise Friendly)
         return {
-
             "Decision": decision,
-            "CompositeScore": round(composite, 2),
-            "RiskProbability": risk_probability,
-
-            "Agents": {
-
-                "StrategyAgent": {
-                    "score": round(strategy_score, 2),
-                    "reasoning": strategy_reasoning,
-                },
-
-                "RiskAgent": {
-                    "score": round(risk_score, 2),
-                    "reasoning": risk_reasoning,
-                },
-
-                "StabilityAgent": {
-                    "score": round(stability_score, 2),
-                    "reasoning": stability_reasoning,
-                },
-
-                "GovernanceAgent": {
-                    "score": round(governance_score, 2),
-                    "reasoning": governance_reasoning,
-                },
-
-                "SkepticAgent": {
-                    "pressure": round(skeptic_pressure, 2),
-                    "reasoning": skeptic_reasoning,
-                },
-
-                "InstabilityAgent": instability_reasoning,
-                "EarlyWarningAgent": early_warning_reasoning,
-            }
+            "CompositeScore": round(composite_score, 2),
+            "RiskProbability": round(risk_probability, 3),
+            "Consensus": {
+                "summary": (
+                    "Emerging instability patterns detected"
+                    if risk_probability > 0.45
+                    else "System signals remain within adaptive tolerance"
+                ),
+                "confidence": round(consensus_confidence, 2),
+            },
+            "Agents": agents_output,
+            "MetaAnalysis": {
+                "dispersion": round(dispersion, 2)
+            },
         }

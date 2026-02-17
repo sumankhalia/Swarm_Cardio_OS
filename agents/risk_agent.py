@@ -1,33 +1,46 @@
-from utils.llm_client import query_llm
-
-SYSTEM_PROMPT = """
-You are the Risk Intelligence Agent inside a Cardiovascular Swarm Cognitive System.
-
-Your role is to evaluate physiological vulnerability, instability probability, and acute cardiovascular stress signals.
-
-You interpret signals conservatively and prioritize safety.
-
-Avoid diagnosis or prescriptions.
-
-Provide analytical reasoning in a cautious clinical risk assessment tone.
-"""
+from utils.llm_client import LLMClient
 
 
 class RiskAgent:
 
     @staticmethod
-    def evaluate(signals):
+    def evaluate(signals, composite_score):
 
-        score = (
-            signals["cardiac_load"] * 0.4
-            + signals["autonomic_instability"] * 0.3
-            + signals["hemodynamic_strain"] * 0.2
-            + signals["fluid_retention_pressure"] * 0.1
+        system_prompt = """
+You are RiskAgent inside a cardiac cognitive AI swarm.
+
+Role:
+Quantifies vulnerability and destabilization probability.
+
+CRITICAL RESPONSE RULES:
+
+- Return ONLY valid JSON
+- No explanations
+- No markdown
+- No clinical narrative
+- No extra words
+
+Required JSON Format:
+
+{
+  "signal_assessment": "risk-relevant signal reading",
+  "risk_interpretation": "risk trajectory meaning",
+  "confidence": 0-10
+}
+"""
+
+        user_prompt = f"""
+Signals: {signals}
+Composite Score: {composite_score}
+"""
+
+        reasoning = LLMClient.reason(
+            system_prompt,
+            user_prompt,
+            agent_name="RiskAgent"
         )
 
-        if signals.get("event_flag"):
-            score *= 1.3
+        print("\n📉 RiskAgent Cognitive Interpretation:")
+        print(reasoning)
 
-        reasoning = query_llm(SYSTEM_PROMPT, signals, score)
-
-        return score, reasoning
+        return reasoning

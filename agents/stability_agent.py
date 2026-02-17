@@ -1,25 +1,46 @@
-from utils.llm_client import query_llm
-
-SYSTEM_PROMPT = """
-You are the Stability Intelligence Agent inside a Cardiovascular Swarm Cognitive System.
-
-Your role is to evaluate buffering capacity, resilience integrity, and recovery strength.
-
-Provide calm physiological stability reasoning.
-"""
+from utils.llm_client import LLMClient
 
 
 class StabilityAgent:
 
     @staticmethod
-    def evaluate(signals):
+    def evaluate(signals, composite_score):
 
-        score = (
-            10
-            - signals["recovery_deficit"] * 0.6
-            - signals["variability_risk"] * 0.4
+        system_prompt = """
+You are StabilityAgent inside a cardiac cognitive AI swarm.
+
+Role:
+Evaluates buffering capacity, resilience, recovery balance.
+
+CRITICAL RESPONSE RULES:
+
+- Return ONLY valid JSON
+- No verbosity
+- No formatting
+- No advice tone
+
+Required JSON Format:
+
+{
+  "signal_assessment": "stability-oriented interpretation",
+  "risk_interpretation": "stability implications",
+  "confidence": 0-10
+}
+"""
+
+        user_prompt = f"""
+Signals: {signals}
+Composite Score: {composite_score}
+"""
+
+        reasoning = LLMClient.reason(
+            system_prompt,
+            user_prompt,
+            agent_name="StabilityAgent"
         )
 
-        reasoning = query_llm(SYSTEM_PROMPT, signals, score)
+        print("\n⚖ StabilityAgent Cognitive Interpretation")
+        print("————————————————————")
+        print(reasoning)
 
-        return score, reasoning
+        return reasoning

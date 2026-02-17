@@ -1,11 +1,4 @@
-from utils.llm_client import query_llm
-
-
-SYSTEM_PROMPT = """
-You are the Crisis Prediction Intelligence Agent.
-
-Estimate probability of future cardiovascular instability.
-"""
+from utils.llm_client import LLMClient
 
 
 class CrisisPredictionAgent:
@@ -13,16 +6,37 @@ class CrisisPredictionAgent:
     @staticmethod
     def evaluate(signals, deviations):
 
-        score = (
-            signals["cardiac_load"]
-            + signals["autonomic_instability"]
-            + abs(deviations.get("cardiac_load", 0))
-        ) / 3
+        system_prompt = """
+You are CrisisPredictionAgent inside a cardiac cognitive AI swarm.
 
-        reasoning = query_llm(
-            SYSTEM_PROMPT,
-            {"signals": signals, "deviations": deviations},
-            score
+Role:
+Estimates near-term destabilization probability using deviations.
+
+CRITICAL RESPONSE RULES:
+
+- Return ONLY valid JSON
+- No long explanations
+- No markdown
+- No clinical advice style
+
+Required JSON Format:
+
+{
+  "signal_assessment": "crisis-relevant deviation reading",
+  "risk_interpretation": "crisis probability implication",
+  "confidence": 0-10
+}
+"""
+
+        user_prompt = f"""
+Signals: {signals}
+Deviations: {deviations}
+"""
+
+        reasoning = LLMClient.reason(
+            system_prompt,
+            user_prompt,
+            agent_name="CrisisPredictionAgent"
         )
 
         return reasoning

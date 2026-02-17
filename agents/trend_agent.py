@@ -1,23 +1,33 @@
-from utils.llm_client import query_llm
-
-SYSTEM_PROMPT = """
-You are the Trend Intelligence Agent.
-
-Evaluate directional drift and progressive deterioration signals.
-"""
+from utils.llm_client import LLMClient
 
 
 class TrendAgent:
 
     @staticmethod
-    def evaluate(history):
+    def evaluate(signals, deviations):
 
-        score = len(history)  # placeholder metric
+        system_prompt = """
+You are TrendAgent inside a cardiac cognitive AI swarm.
 
-        reasoning = query_llm(
-            SYSTEM_PROMPT,
-            {"history_length": len(history)},
-            score
-        )
+Role:
+Interprets deviation dynamics, temporal drift, trajectory patterns.
 
-        return reasoning
+CRITICAL RESPONSE RULES:
+
+Return ONLY valid JSON.
+
+{
+  "signal_assessment": "...",
+  "risk_interpretation": "...",
+  "confidence": 0-10
+}
+"""
+
+        user_prompt = f"""
+Signals: {signals}
+Deviations: {deviations}
+"""
+
+        cognition = LLMClient.reason(system_prompt, user_prompt, "TrendAgent")
+
+        return cognition

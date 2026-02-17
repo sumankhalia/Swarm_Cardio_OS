@@ -1,39 +1,31 @@
 class DebateEngine:
 
     @staticmethod
-    def run_debate(agent_outputs):
+    def run_debate(swarm_output):
 
-        agents = agent_outputs.get("Agents", {})
+        agents = swarm_output.get("Agents", {})
 
-        strategy_reasoning = agents.get("StrategyAgent", {}).get(
-            "reasoning", "No reasoning available"
-        )
+        scores = []
 
-        risk_reasoning = agents.get("RiskAgent", {}).get(
-            "reasoning", "No reasoning available"
-        )
+        for agent in agents.values():
+            if "score" in agent:
+                scores.append(agent["score"])
 
-        instability_reasoning = agents.get("InstabilityAgent", "No reasoning available")
+        if not scores:
+            return {"summary": "No agent consensus available"}
 
-        warning_reasoning = agents.get("EarlyWarningAgent", "No reasoning available")
+        avg_score = sum(scores) / len(scores)
 
-        debate = f"""
+        if avg_score < 10:
+            stance = "System signals remain within adaptive tolerance"
 
-STRATEGY AGENT PERSPECTIVE
-{strategy_reasoning}
+        elif avg_score < 18:
+            stance = "Emerging instability patterns detected"
 
-RISK AGENT PERSPECTIVE
-{risk_reasoning}
+        else:
+            stance = "High-risk convergence across agents"
 
-INSTABILITY AGENT PERSPECTIVE
-{instability_reasoning}
-
-EARLY WARNING AGENT PERSPECTIVE
-{warning_reasoning}
-
-EXECUTIVE CONSENSUS
-Integrated multi-agent reasoning synthesis complete.
-
-"""
-
-        return debate
+        return {
+            "summary": stance,
+            "confidence": round(avg_score, 2)
+        }

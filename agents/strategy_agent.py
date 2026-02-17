@@ -1,30 +1,47 @@
-from utils.llm_client import query_llm
-
-SYSTEM_PROMPT = """
-You are the Strategy Intelligence Agent inside a Cardiovascular Swarm Cognitive System.
-
-Your role is to evaluate adaptive capacity, resilience potential, and physiological coping ability.
-
-You interpret signals through the lens of long-term stability, recovery strength, variability tolerance, and systemic adaptation.
-
-You deliberately avoid diagnosis or medical prescriptions.
-
-Provide analytical reasoning in a professional clinical intelligence tone.
-"""
+from utils.llm_client import LLMClient
 
 
 class StrategyAgent:
 
     @staticmethod
-    def evaluate(signals):
+    def evaluate(signals, composite_score):
 
-        score = (
-            signals["cardiac_load"] * 0.35
-            + signals["recovery_deficit"] * 0.25
-            + signals["autonomic_instability"] * 0.25
-            + signals["variability_risk"] * 0.15
+        system_prompt = """
+You are StrategyAgent inside a cardiac cognitive AI swarm.
+
+Role:
+System-level strategic interpreter of physiological state.
+
+CRITICAL RESPONSE RULES:
+
+- Return ONLY valid JSON
+- No markdown
+- No bullet points
+- No explanations
+- No medical advice tone
+- No extra text
+
+Required JSON Format:
+
+{
+  "signal_assessment": "short systemic interpretation",
+  "risk_interpretation": "strategic implication",
+  "confidence": 0-10
+}
+"""
+
+        user_prompt = f"""
+Signals: {signals}
+Composite Score: {composite_score}
+"""
+
+        reasoning = LLMClient.reason(
+            system_prompt,
+            user_prompt,
+            agent_name="StrategyAgent"
         )
 
-        reasoning = query_llm(SYSTEM_PROMPT, signals, score)
+        print("\n🧠 StrategyAgent Cognitive Interpretation:")
+        print(reasoning)
 
-        return score, reasoning
+        return reasoning

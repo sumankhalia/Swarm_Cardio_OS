@@ -1,23 +1,42 @@
-from utils.llm_client import query_llm
-
-SYSTEM_PROMPT = """
-You are the Skeptic Intelligence Agent inside a Cardiovascular Swarm Cognitive System.
-
-Your role is to challenge assumptions and detect contradictions.
-"""
+from utils.llm_client import LLMClient
 
 
 class SkepticAgent:
 
     @staticmethod
-    def evaluate(strategy_score, risk_score):
+    def evaluate(signals, composite_score):
 
-        score = abs(strategy_score - risk_score)
+        system_prompt = """
+You are SkepticAgent inside a cardiac cognitive AI swarm.
 
-        reasoning = query_llm(
-            SYSTEM_PROMPT,
-            {"strategy_score": strategy_score, "risk_score": risk_score},
-            score
+Role:
+Challenges assumptions, detects contradictions, evaluates uncertainty.
+
+CRITICAL RESPONSE RULES:
+
+- Return ONLY valid JSON
+- No philosophical essays
+- No markdown
+- No verbose critique
+
+Required JSON Format:
+
+{
+  "signal_assessment": "uncertainty / contradiction reading",
+  "risk_interpretation": "confidence limitation",
+  "confidence": 0-10
+}
+"""
+
+        user_prompt = f"""
+Signals: {signals}
+Composite Score: {composite_score}
+"""
+
+        reasoning = LLMClient.reason(
+            system_prompt,
+            user_prompt,
+            agent_name="SkepticAgent"
         )
 
-        return score, reasoning
+        return reasoning

@@ -1,9 +1,8 @@
 from data_pipeline.synthetic_generator import CardiacSyntheticGenerator
 from risk_engine.swarm_controller import SwarmController
-from risk_engine.debate_engine import DebateEngine
 from memory.twin_memory import TwinMemory
-from agents.crisis_prediction_agent import CrisisPredictionAgent
-from utils.visualizer import Visualizer
+from utils.report_formatter import ReportFormatter
+from utils.pdf_report import generate_pdf_report
 
 
 def run_swarm():
@@ -19,34 +18,50 @@ def run_swarm():
 
     deviations = memory.deviation(latest)
 
-    swarm_output = SwarmController.run(latest)
+    swarm_output = SwarmController.run(latest, deviations)
 
-    consensus = DebateEngine.run_debate(swarm_output)
+    formatted_report = ReportFormatter.format_for_ui(swarm_output)
 
-    crisis_forecast = CrisisPredictionAgent.evaluate(latest, deviations)
+    generate_pdf_report(formatted_report)
 
-    return {
-        "Decision": swarm_output["Decision"],
-        "RiskProbability": swarm_output["RiskProbability"],
-        "CompositeScore": swarm_output["CompositeScore"],
-        "Agents": swarm_output["Agents"],
-        "Debate": consensus,
-        "CrisisForecast": crisis_forecast,
-        "LatestState": latest,
-        "Deviations": deviations
-    }
+    return formatted_report
 
 
 def main():
 
     result = run_swarm()
 
-    print("\nSWARM OUTPUT:")
-    print(result)
+    print("\nCARDIOSPHERE INTELLIGENCE OUTPUT")
+    print("--------------------------------------------------")
 
-    Visualizer.plot_history(
-        CardiacSyntheticGenerator.generate_patient(months=12)
-    )
+    print(f"\nDecision: {result.get('Decision')}")
+    print(f"Composite Score: {round(result.get('CompositeScore', 0), 2)}")
+    print(f"Risk Probability: {round(result.get('RiskProbability', 0), 3)}")
+
+    print("\nConsensus Analysis")
+    print("--------------------------------------------------")
+
+    consensus = result.get("Consensus", {})
+
+    print(consensus.get("summary", "Unavailable"))
+    print(f"Confidence Level: {round(consensus.get('confidence', 0), 2)}")
+
+    print("\nAgent Interpretations")
+    print("--------------------------------------------------")
+
+    for agent_name, agent_data in result.get("Agents", {}).items():
+
+        print(f"\n{agent_name}")
+        print(agent_data.get("signal_assessment", "Unavailable"))
+        print(agent_data.get("risk_interpretation", "Unavailable"))
+        print(f"Confidence: {agent_data.get('confidence', 0)}")
+
+    print("\nMeta Analysis")
+    print("--------------------------------------------------")
+
+    meta = result.get("MetaAnalysis", {})
+
+    print(f"Cognitive Dispersion: {round(meta.get('dispersion', 0), 2)}")
 
 
 if __name__ == "__main__":

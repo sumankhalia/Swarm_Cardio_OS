@@ -20,3 +20,11 @@ venv/
 # OS
 .DS_Store
 Thumbs.db
+
+# Reports
+*.pdf
+
+# Databases
+*.db
+
+
